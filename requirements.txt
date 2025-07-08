@@ -1,0 +1,5 @@
+camelot-py[cv]
+watchdog
+pypdf
+pandas
+argparse
