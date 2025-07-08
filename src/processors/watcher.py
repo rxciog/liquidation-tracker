@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.config import INPUT_DIR, OUTPUT_DIR
 
-VENV_PYTHON = "./.venv/bin/python"
+VENV_PYTHON = Path(__file__).parent.parent.parent / ".venv/bin/python"
 EXTRACT_SCRIPT = Path(__file__).parent / "extract_table.py"
 
 
