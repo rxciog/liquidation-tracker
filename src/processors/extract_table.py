@@ -1,3 +1,4 @@
+from collections import namedtuple
 import camelot
 import argparse
 import sys
@@ -11,6 +12,9 @@ import csv
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.config import CSV_OUTPUT_PATH
+
+DateInfo = namedtuple('DateInfo', ['day','month','year', 'month_name'])
+DateRange = namedtuple('DateRange', ['start_date','end_date'])
 
 def extract_table(file_path, filename):
         
@@ -31,14 +35,22 @@ def extract_date(path):
         reader = PdfReader(path)
 
         text = reader.pages[0].extract_text()
-        match = re.search(r"(\d{2}/\d{4})", text)
+        match = re.findall(r"(\d{2}/\d{2}/\d{4})", text)
         
-        if not match:
+        if not match or len(match) < 2:
             return None
+
+        dates = match[:2] 
         
-        month, year = match.group().split('/')
-        month_name = calendar.month_name[int(month)]
-        return month_name + year
+        start_day, start_month, start_year = dates[0].split('/')
+        start_month_name = calendar.month_name[int(start_month)]
+        start_date = DateInfo(start_day,start_month,start_year, start_month_name)
+        
+        end_day, end_month, end_year = dates[1].split('/')
+        end_month_name = calendar.month_name[int(end_month)]
+        end_date = DateInfo(end_day, end_month, end_year, end_month_name)
+
+        return DateRange(start_date, end_date)
 
     except Exception:
         return None
@@ -83,12 +95,13 @@ if __name__ == '__main__':
     parser.add_argument('file_path')
     args = parser.parse_args()
     
-    date = extract_date(args.file_path)
-    if not date:
+    date_range = extract_date(args.file_path)
+    if not date_range:
         print("Failed to extract  date")
         exit(1)
-        
-    filename = str(CSV_OUTPUT_PATH) + '/Liquidacion' + date + '.csv'
+    
+    filename_date = date_range.start_date.month_name + date_range.start_date.year    
+    filename = str(CSV_OUTPUT_PATH) + '/Liquidacion' + filename_date + '.csv'
     
     if not extract_table(args.file_path, filename):
         print("Failed to extract table")
