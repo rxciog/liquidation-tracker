@@ -16,18 +16,18 @@ from utils.config import CSV_OUTPUT_PATH
 DateInfo = namedtuple('DateInfo', ['day','month','year', 'month_name'])
 DateRange = namedtuple('DateRange', ['start_date','end_date'])
 
-def extract_table(file_path, filename):
+def extract_table(file_path):
         
     try:
         tables = camelot.read_pdf(file_path, flavor='stream', table_areas=['0,700,600,100'])
 
         if tables.n != 1:
             return False
-        tables[0].df.to_csv(filename, mode='a', index=False, header=False)
+        
     except Exception as e:
         return False
 
-    return True
+    return tables
     
 
 def extract_date(path):
@@ -89,6 +89,19 @@ def calculate_total(filename):
     except  Exception:
         return False
     
+def write_csv(data, filename, date_range):
+    
+    try:
+        with open(filename, 'a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow([f"Desde: {date_range.start_date.day}/{date_range.start_date.month}/{date_range.start_date.year}"])
+            writer.writerow([f"Hasta: {date_range.end_date.day}/{date_range.end_date.month}/{date_range.end_date.year}"])
+            writer.writerow([])
+        data[0].df.to_csv(filename, mode='a', index=False, header=False)
+    
+    except Exception as e:
+        return False
+    return True
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Extract table from pdf")
@@ -103,10 +116,15 @@ if __name__ == '__main__':
     filename_date = date_range.start_date.month_name + date_range.start_date.year    
     filename = str(CSV_OUTPUT_PATH) + '/Liquidacion' + filename_date + '.csv'
     
-    if not extract_table(args.file_path, filename):
+    data = extract_table(args.file_path)
+    if not data:
         print("Failed to extract table")
         exit(1)
     
+    if not write_csv(data, filename, date_range):
+        print("Failed to write data in csv file")
+        exit(1)
+        
     if not calculate_total(filename):
         print("Failed to calculate totals")
         exit(1)
