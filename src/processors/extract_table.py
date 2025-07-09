@@ -15,7 +15,7 @@ from utils.config import CSV_OUTPUT_PATH
 def extract_table(file_path, filename):
         
     try:
-        tables = camelot.read_pdf(file_path, flavor='stream', table_areas=['0,480,600,100'])
+        tables = camelot.read_pdf(file_path, flavor='stream', table_areas=['0,700,600,100'])
 
         if tables.n != 1:
             return False
