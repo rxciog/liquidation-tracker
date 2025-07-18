@@ -7,11 +7,16 @@ import shutil
 import time
 import sys
 from pathlib import Path
+import platform
+
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.config import INPUT_DIR, OUTPUT_DIR
 
-VENV_PYTHON = Path(__file__).parent.parent.parent / ".venv/bin/python"
+if platform.system() == "Windows":
+    VENV_PYTHON = Path(__file__).parent.parent.parent / ".venv" / "Scripts" / "python.exe"
+else:
+    VENV_PYTHON = Path(__file__).parent.parent.parent / ".venv" / "bin" / "python"
 EXTRACT_SCRIPT = Path(__file__).parent / "extract_table.py"
 
 
